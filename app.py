@@ -1,115 +1,140 @@
 import streamlit as st
-import numpy as np
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-from math import sqrt
+import numpy as np
+from PIL import Image
+import os
 
-# --- Page Setup ---
-st.set_page_config(page_title="🔺 MathCraft: Polyhedron Playground", page_icon="📦", layout="wide")
-st.title("📦 MathCraft: Polyhedron Playground")
+# Page setup
+st.set_page_config(page_title="MathCraft: Polyhedrons", page_icon="📦", layout="wide")
+st.title("📦 MathCraft: Polyhedrons – Geometry in 3D!")
 st.markdown("*Developed by Xavier Honablue M.Ed for cognitivecloud.ai*")
 
+# --- Image Loader ---
+def load_image(filename):
+    try:
+        return Image.open(filename)
+    except:
+        return None
+
 # --- Sidebar Navigation ---
-st.sidebar.title("🔍 Explore Polyhedrons")
-section = st.sidebar.radio("Choose a Section", [
-    "📦 Introduction to Polyhedrons",
-    "🔺 Build a Sheet of Tetrahedrons",
-    "🌐 Platonic Solids Viewer",
-    "🧬 Real World Polyhedra",
-    "🧠 Quiz: Name That Shape!"
+st.sidebar.title("🔍 Explore Sections")
+section = st.sidebar.radio("Jump to a section:", [
+    "📚 Lesson: What Are Polyhedrons?",
+    "🔢 Vocabulary & Rules",
+    "🧠 Euler's Formula",
+    "📸 Visual Gallery",
+    "🧪 Polyhedron Playground",
+    "📐 Build Tetrahedral Sheet",
+    "📎 Real-World Applications"
 ])
 
-# --- Section 1: Introduction ---
-if section == "📦 Introduction to Polyhedrons":
-    st.header("📦 What Are Polyhedrons?")
+# --- Section 1: Lesson ---
+if section == "📚 Lesson: What Are Polyhedrons?":
+    st.header("📚 Understanding Polyhedrons")
     st.markdown("""
-    A **polyhedron** is a 3-dimensional shape with flat polygonal faces, straight edges, and sharp corners or vertices.
-    The most famous polyhedra are the **Platonic solids**: tetrahedron, cube, octahedron, dodecahedron, and icosahedron.
+    **Polyhedrons** are solid 3D shapes with flat polygonal faces, straight edges, and vertices (corners). 
 
-    These shapes are not only fun to study — they appear **throughout nature and technology**, from **beehives** to **nanostructures**, **virus shells**, and even **Kevlar armor**.
+    These include:
+    - **Platonic Solids** (all faces and angles equal)
+    - **Archimedean Solids** (faces are regular but not all the same)
+
+    They form the building blocks of geometry and appear in nanoscience, architecture, crystals, and more!
     """)
-    st.image("https://upload.wikimedia.org/wikipedia/commons/8/87/Platonic_Solids_Animation.gif", caption="Platonic Solids")
 
-# --- Section 2: Tetrahedron Sheet Builder ---
-elif section == "🔺 Build a Sheet of Tetrahedrons":
-    st.header("🔺 Create a Tetrahedron Mesh")
+# --- Section 2: Vocabulary ---
+elif section == "🔢 Vocabulary & Rules":
+    st.header("📘 Polyhedron Vocabulary & Geometry Rules")
     st.markdown("""
-    Here's an interactive way to **tile tetrahedrons** into a 2D sheet that resembles the underlying **molecular structure of strong materials** like Teflon and Kevlar.
+    - **Face:** A flat surface (e.g., square or triangle)
+    - **Edge:** Where two faces meet
+    - **Vertex:** A corner where edges meet
+    - **Euler’s Formula:** \( V - E + F = 2 \) for convex polyhedrons
+    - **Regular Polyhedrons:** All faces are the same shape and size
     """)
-    cols = st.columns([2, 1])
-    with cols[1]:
-        rows = st.slider("Number of rows", 1, 10, 4)
-        cols = st.slider("Number of columns", 1, 10, 4)
 
-    fig = go.Figure()
-    unit = 1
-    h = sqrt(3)/2 * unit
+# --- Section 3: Euler's Formula ---
+elif section == "🧠 Euler's Formula":
+    st.header("🧠 Explore Euler’s Polyhedron Formula")
+    st.latex(r"V - E + F = 2")
 
-    for i in range(rows):
-        for j in range(cols):
-            x0 = j * unit
-            y0 = i * h
-            x1 = x0 + unit / 2
-            y1 = y0 + h
-            x2 = x0 + unit
-            y2 = y0
-            fig.add_trace(go.Scatter(
-                x=[x0, x1, x2, x0], y=[y0, y1, y2, y0],
-                mode="lines",
-                fill="toself",
-                line=dict(color="royalblue")
-            ))
+    st.markdown("Try entering your own values to see if it works!")
+    V = st.number_input("Vertices (V)", min_value=0, value=8)
+    E = st.number_input("Edges (E)", min_value=0, value=12)
+    F = st.number_input("Faces (F)", min_value=0, value=6)
 
-    fig.update_layout(
-        title="Tiled Tetrahedron Mesh",
-        xaxis=dict(visible=False),
-        yaxis=dict(visible=False),
-        height=500
-    )
-    st.plotly_chart(fig)
+    if V - E + F == 2:
+        st.success(f"✅ Euler’s Formula holds: {V} - {E} + {F} = 2")
+    else:
+        st.error(f"❌ Doesn't hold: {V} - {E} + {F} = {V - E + F}")
 
-# --- Section 3: Platonic Solids Viewer ---
-elif section == "🌐 Platonic Solids Viewer":
-    st.header("🌐 Platonic Solids Explorer")
-    st.markdown("Choose a Platonic solid to view and rotate:")
-    solid = st.selectbox("Pick a solid:", ["Tetrahedron", "Cube", "Octahedron", "Dodecahedron", "Icosahedron"])
+# --- Section 4: Visual Gallery ---
+elif section == "📸 Visual Gallery":
+    st.header("📸 Polyhedron Gallery")
+    st.markdown("A visual library of major polyhedrons:")
 
-    # Dictionary of vertex positions for rendering (simplified sample for demonstration)
-    st.info(f"Interactive 3D viewers will be added soon. You selected: **{solid}**")
+    cols = st.columns(3)
+    image_files = {
+        "Tetrahedron": "assets/tetrahedron.png",
+        "Cube (Hexahedron)": "assets/cube.png",
+        "Octahedron": "assets/octahedron.png",
+        "Dodecahedron": "assets/dodecahedron.png",
+        "Icosahedron": "assets/icosahedron.png"
+    }
 
-# --- Section 4: Real World Examples ---
-elif section == "🧬 Real World Polyhedra":
-    st.header("🧬 Polyhedra in the Real World")
+    for (name, path), col in zip(image_files.items(), cols * 2):
+        img = load_image(path)
+        if img:
+            col.image(img, caption=name, use_column_width=True)
+        else:
+            col.warning(f"Image not found for {name}")
+
+# --- Section 5: Playground ---
+elif section == "🧪 Polyhedron Playground":
+    st.header("🧪 Interactive Polyhedron Explorer")
     st.markdown("""
-    - 🐝 **Beehives** use hexagonal tiling — an efficient polyhedral shape — to store honey.
-    - 🦠 **Viruses** like HIV have icosahedral symmetry.
-    - 🔬 **Carbon Nanostructures** form cages called buckyballs (fullerenes).
-    - 🛡️ **Kevlar Body Armor** uses tetrahedral mesh geometry for strength.
-    - 🏛️ **Architecture**: Domes and space frames often use polyhedral modules for stability.
+    Adjust sliders below to build your own abstract 3D shapes and explore how face/edge/vertex ratios affect geometry!
     """)
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Buckyball_structure.png/600px-Buckyball_structure.png", caption="Carbon Fullerene (Buckyball)")
 
-# --- Section 5: Quiz ---
-elif section == "🧠 Quiz: Name That Shape!":
-    st.header("🧠 Quiz: Name That Polyhedron")
-    q1 = st.radio("Which shape has 8 faces and all are equilateral triangles?", ["Cube", "Octahedron", "Dodecahedron"])
-    q2 = st.radio("Which shape has 12 pentagonal faces?", ["Icosahedron", "Cube", "Dodecahedron"])
+    sides = st.slider("Number of sides per face", 3, 12, 6)
+    faces = st.slider("Number of faces", 4, 32, 8)
+    st.markdown(f"You chose a shape with {faces} faces that are {sides}-gons.")
+    st.info("This tool is conceptual, great for understanding abstract 3D geometry.")
 
-    if st.button("Check Answers"):
-        score = 0
-        if q1 == "Octahedron":
-            score += 1
-        if q2 == "Dodecahedron":
-            score += 1
+# --- Section 6: Build Tetrahedral Sheet ---
+elif section == "📐 Build Tetrahedral Sheet":
+    st.header("📐 Construct a Sheet of Tetrahedrons")
+    st.markdown("""
+    This activity simulates building a 2D sheet using repeated tetrahedrons — just like some nanostructures and molecular crystals.
+    
+    You can imagine each tetrahedron as a triangle pyramid.
+    """)
+    grid_size = st.slider("Number of tetrahedrons in a row", 1, 10, 5)
 
-        st.success(f"Your score: {score}/2")
-        if score < 2:
-            st.markdown("👉 Review the [Platonic Solids](https://en.wikipedia.org/wiki/Platonic_solid) section!")
+    fig, ax = plt.subplots(figsize=(8, 4))
+    for i in range(grid_size):
+        x = i * 2
+        triangle = plt.Polygon([[x, 0], [x + 1, 1.5], [x + 2, 0]], closed=True, color='skyblue', edgecolor='black')
+        ax.add_patch(triangle)
+    ax.set_xlim(0, grid_size * 2)
+    ax.set_ylim(0, 2)
+    ax.axis('off')
+    st.pyplot(fig)
+
+# --- Section 7: Real-World Connections ---
+elif section == "📎 Real-World Applications":
+    st.header("📎 Where Polyhedrons Show Up in Real Life")
+    st.markdown("""
+    ✅ **Beehives:** Hexagonal packing structures maximize space.
+
+    ✅ **Viruses:** Many viral shells are icosahedrons — combining symmetry and strength.
+
+    ✅ **Kevlar/Teflar Body Armor:** Nano-polyhedrons reinforce fibers.
+
+    ✅ **Architecture:** Geodesic domes (like Buckminster Fuller's) use polyhedrons for light-weight strength.
+
+    ✅ **Crystals & Nanoscience:** Atomic and molecular structures form repeating polyhedrons.
+    """)
 
 # --- End ---
 st.markdown("---")
-st.markdown("""
-<p style="text-align: center; color: #999; font-size: 0.9rem;">
-All MathCraft lessons are part of the CognitiveCloud.ai initiative to empower STEM learners through engaging, standards-aligned technology.
-</p>
-""", unsafe_allow_html=True)
+st.success("✅ Lesson complete. Ready to build your own solid ideas!")
